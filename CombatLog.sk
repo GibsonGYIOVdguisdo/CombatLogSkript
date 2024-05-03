@@ -1,0 +1,45 @@
+options:
+    combatTime: 30
+    disableCommands: true
+
+on server stop:
+    # Hopefully stops players dying on server stop
+    loop all players:
+        delete {-CL.player.%{_player}%.logged}
+
+variables:
+    {-CL.id.%player%} = 0
+
+function triggerCombatLog(player: player):
+    set {-CL.player.%{_player}%.logged} to true
+    add 1 to {-CL.id.%{_player}%}
+    set {_combatId} to {-CL.id.%{_player}%}
+    send action bar "&cYou are combat logged do not leave the game. %{@combatTime} - 0% seconds left" to {_player}
+    loop {@combatTime} times:
+        wait 1 second
+        if {_combatId} is not {-CL.id.%{_player}%}:
+            exit trigger
+        else:
+            send action bar "&cYou are combat logged do not leave the game. %{@combatTime} - loop-value% seconds left" to {_player}
+    delete {-CL.player.%{_player}%.logged}
+
+on death of player:
+    if {-CL.player.%victim%.logged} is true:
+        add 1 to {-CL.id.%victim%}
+        set {-CL.player.%{_player}%.logged} to false
+
+on damage of player:
+    if attacker is a entity:
+        triggerCombatLog(attacker)
+        triggerCombatLog(victim)
+
+on leave:
+    if {-CL.player.%player%.logged} is true:
+        kill player
+        send "&c%player% is a noob and combat logged" to all players
+
+on command:
+    if {@disableCommands} is true:
+        if {-CL.player.%player%.logged} is true:
+            send "&cYou cannot use commands while in combat" to player
+            cancel event
