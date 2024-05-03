@@ -29,7 +29,7 @@ on death of player:
         set {-CL.player.%{_player}%.logged} to false
 
 on damage of player:
-    if attacker is a entity:
+    if attacker is a player:
         triggerCombatLog(attacker)
         triggerCombatLog(victim)
 
