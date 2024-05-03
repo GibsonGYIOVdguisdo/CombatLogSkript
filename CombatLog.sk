@@ -27,7 +27,7 @@ on server stop:
 on death of player:
     if {-CL.player.%victim%.logged} is true:
         add 1 to {-CL.id.%victim%}
-        set {-CL.player.%{_player}%.logged} to false
+        set {-CL.player.%victim%.logged} to false
 
 on damage of player:
     if attacker is a player:
