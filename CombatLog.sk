@@ -1,11 +1,7 @@
 options:
     combatTime: 30
     disableCommands: true
-
-on server stop:
-    # Hopefully stops players dying on server stop
-    loop all players:
-        delete {-CL.player.%{_player}%.logged}
+    teamPluginPresent: true
 
 variables:
     {-CL.id.%player%} = 0
@@ -23,6 +19,11 @@ function triggerCombatLog(player: player):
             send action bar "&cYou are combat logged do not leave the game. %{@combatTime} - loop-value% seconds left" to {_player}
     delete {-CL.player.%{_player}%.logged}
 
+on server stop:
+    # Hopefully stops players dying on server stop
+    loop all players:
+        delete {-CL.player.%{_player}%.logged}
+
 on death of player:
     if {-CL.player.%victim%.logged} is true:
         add 1 to {-CL.id.%victim%}
@@ -30,8 +31,14 @@ on death of player:
 
 on damage of player:
     if attacker is a player:
-        triggerCombatLog(attacker)
-        triggerCombatLog(victim)
+        if {@teamPluginPresent} is true:
+            if {teams.Player.%attacker%.Team} is not {teams.Player.%victim%.Team}:
+                if {teams.Player.%attacker%.Team} is set:
+                    triggerCombatLog(attacker)
+                    triggerCombatLog(victim)
+        else:
+            triggerCombatLog(attacker)
+            triggerCombatLog(victim)
 
 on leave:
     if {-CL.player.%player%.logged} is true:
